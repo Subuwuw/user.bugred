@@ -1,0 +1,306 @@
+{
+	"info": {
+		"_postman_id": "3edc02e8-683c-4d28-97f9-63f50c6f7bfc",
+		"name": "user",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19459230"
+	},
+	"item": [
+		{
+			"name": "doRegister",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"var email = jsonData.email;\r",
+							"console.log(email);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.cookies.clear\r",
+							"pm.environment.set(\"randomEmail\", pm.variables.replaceIn(\"{{$randomEmail}}\").toLowerCase())\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "{{randomEmail}}",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "{{$randomFirstName}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/doregister",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"doregister"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "doLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Your test name\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(true);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "{{randomEmail}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}doLogin",
+					"host": [
+						"{{url}}doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Забираем в переменные три email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const $ = cheerio.load(pm.response.text());\r",
+							"var firstUser = ($('tbody tr:nth-child(1) td:nth-child(1)').text());\r",
+							"var secondUser = ($('tbody tr:nth-child(2) td:nth-child(1)').text());\r",
+							"\r",
+							"pm.environment.set(\"userFirst\", firstUser);\r",
+							"\r",
+							"pm.environment.set(\"userSecond\", secondUser);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://users.bugred.ru",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createCompany",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"companyName\", pm.variables.replaceIn(\"{{$randomCompanyName}}\"))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"    var jsonData = pm.response.json();\r",
+							"    var id_company = jsonData.id_company;\r",
+							"    pm.environment.set(\"companyID\",id_company);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"company_name\": \"{{companyName}}\",\r\n  \"company_type\": \"ООО\",\r\n  \"company_users\": [\"{{userFirst}}\", \"{{userSecond}}\"],\r\n  \"email_owner\": \"{{randomEmail}}\"\r\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}createcompany",
+					"host": [
+						"{{url}}createcompany"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUser",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{$randomEmail}}\",\r\n  \"name\": \"{{$randomFullName}}\",\r\n  \"tasks\": [15],\r\n  \"companies\": [{{companyID}}],\r\n  \"hobby\":\"{{$randomJobType}}\",\r\n  \"adres\":\"{{$randomStreetAddress}}\",\r\n  \"name1\":\"{{$randomUserName}}\",\r\n  \"surname1\":\"{{$randomLastName}}\",\r\n  \"fathername1\":\"{{$randomDomainName}}\",\r\n  \"cat\":\"{{$randomFirstName}}\",\r\n  \"dog\":\"Ушастый\",\r\n  \"parrot\":\"Васька\",\r\n  \"cavy\":\"Кто ты?\",\r\n  \"hamster\":\"Хомяк\",\r\n  \"squirrel\":\"Белая горячка к нам пришла\",\r\n  \"phone\":\"{{$randomPhoneNumber}}\",\r\n  \"inn\":\"111111111111\",\r\n  \"gender\":\"m\",\r\n  \"birthday\":\"{{$randomDatabaseEngine}}\",\r\n  \"date_start\":\"{{$randomDateFuture}}\"\r\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/createuser",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"createuser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddAvatar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{userFirst}}\",\r\n    \"avatar\": \"{{$randomBusinessImage}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://users.bugred.ru/tasks/rest/addavatar",
+					"protocol": "http",
+					"host": [
+						"users",
+						"bugred",
+						"ru"
+					],
+					"path": [
+						"tasks",
+						"rest",
+						"addavatar"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Status code is 200\", function () {",
+					"    pm.response.to.have.status(200);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://users.bugred.ru/tasks/rest/",
+			"type": "string"
+		},
+		{
+			"key": "name",
+			"value": "",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
